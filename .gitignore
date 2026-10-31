@@ -1,0 +1,16 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Secretos: NUNCA se suben a GitHub
+.env
+
+# Archivos del sistema de macOS
+.DS_Store

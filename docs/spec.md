@@ -2,7 +2,8 @@
 
 - Para quién es: para mí, estudiante de DAM con un Mac, y para cualquiera que tenga el ordenador desordenado.
 - Qué problema resuelve: ordenar, renombrar y entender archivos que se acumulan cada día, sin hacerlo a mano.
-- Órdenes: tareas --help, version, listar, acciones, validar y ejecutar.
+- Órdenes: `tareas --help` muestra las acciones configuradas; cada acción se invoca como `tareas <nombre-accion> [--simular]`.
+- Una acción que no aparezca en `acciones.json` muestra un error indicando que no existe.
 - Acciones de sistema:
   1. ordenar-descargas (mover): PDF y documentos (.pdf, .docx) de ~/Downloads a ~/Documents/PDF.
   2. recoger-capturas (mover): capturas del Escritorio ("Captura de pantalla…") a ~/Pictures/Capturas.

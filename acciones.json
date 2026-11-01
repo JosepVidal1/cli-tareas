@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "acciones": [
+    {
+      "nombre": "ordenar-descargas",
+      "descripcion": "Mueve los PDF y documentos de Word de Descargas a Documentos/PDF",
+      "tipo": "mover",
+      "origen": "~/pruebas-tareas/Downloads",
+      "filtro": { "extensiones": [".pdf", ".docx"] },
+      "destino": "~/pruebas-tareas/Documentos/PDF"
+    },
+    {
+      "nombre": "recoger-capturas",
+      "descripcion": "Lleva las capturas de pantalla del Escritorio a la carpeta Capturas",
+      "tipo": "mover",
+      "origen": "~/pruebas-tareas/Desktop",
+      "filtro": { "patron": "^Captura de pantalla.*\\.png$" },
+      "destino": "~/pruebas-tareas/Capturas"
+    },
+    {
+      "nombre": "renombrar-fotos",
+      "descripcion": "Cambia nombres como IMG_4821.jpg por la fecha de la foto",
+      "tipo": "renombrar",
+      "origen": "~/pruebas-tareas/Fotos",
+      "filtro": { "extensiones": [".jpg", ".jpeg", ".png", ".heic"] },
+      "plantilla": "{fecha:%Y-%m-%d}_{n:03}{ext}"
+    }
+  ]
+}

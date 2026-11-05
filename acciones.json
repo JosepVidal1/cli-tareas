@@ -38,18 +38,6 @@
         ]
       },
       "plantilla": "{fecha:%Y-%m-%d}_{n:03}{ext}"
-    },
-    {
-      "nombre": "Contar numero de letras",
-      "descripcion": "Una funcion que cuente las letras de un archivo",
-      "tipo": "mover",
-      "origen": "La actual",
-      "destino": "La actual",
-      "filtro": {
-        "extensiones": [
-          ".docx"
-        ]
-      }
     }
   ]
 }

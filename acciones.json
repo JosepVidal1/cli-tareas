@@ -38,6 +38,56 @@
         ]
       },
       "plantilla": "{fecha:%Y-%m-%d}_{n:03}{ext}"
+    },
+    {
+      "nombre": "ordenar-imagenes",
+      "descripcion": "Mueve imágenes de Descargas a la carpeta de imágenes descargadas",
+      "tipo": "mover",
+      "origen": "~/pruebas-tareas/Downloads",
+      "filtro": {
+        "extensiones": [".jpg", ".jpeg", ".png", ".gif", ".webp", ".heic"]
+      },
+      "destino": "~/pruebas-tareas/Pictures/Descargadas"
+    },
+    {
+      "nombre": "ordenar-instaladores",
+      "descripcion": "Mueve instaladores a una carpeta separada",
+      "tipo": "mover",
+      "origen": "~/pruebas-tareas/Downloads",
+      "filtro": {
+        "extensiones": [".dmg", ".pkg", ".exe", ".msi"]
+      },
+      "destino": "~/pruebas-tareas/Downloads/Instaladores"
+    },
+    {
+      "nombre": "limpieza-semanal",
+      "descripcion": "Ejecuta las acciones de ordenación configuradas para la semana",
+      "tipo": "secuencia",
+      "acciones": [
+        "ordenar-descargas",
+        "recoger-capturas",
+        "ordenar-imagenes",
+        "ordenar-instaladores"
+      ]
+    },
+    {
+      "nombre": "resumir-pdf",
+      "descripcion": "Genera un resumen Markdown de PDFs de apuntes mediante IA",
+      "tipo": "resumir-pdf",
+      "origen": "~/pruebas-tareas/Apuntes",
+      "filtro": {
+        "extensiones": [".pdf"]
+      },
+      "destino": "~/pruebas-tareas/Resumenes"
+    },
+    {
+      "nombre": "renombrar-por-contenido",
+      "descripcion": "Propone nombres de PDF según su contenido sin renombrarlos",
+      "tipo": "renombrar-por-contenido",
+      "origen": "~/pruebas-tareas/Documentos",
+      "filtro": {
+        "extensiones": [".pdf"]
+      }
     }
   ]
 }

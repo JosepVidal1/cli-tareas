@@ -1,138 +1,168 @@
 # tareas
 
-`tareas` es una aplicación de línea de comandos para automatizar tareas sencillas
-con archivos: moverlos entre carpetas o renombrarlos según una plantilla. Las
-acciones se configuran en `acciones.json`, por lo que se pueden adaptar las rutas
-y los filtros sin modificar el código del programa.
+`tareas` es una CLI para organizar archivos mediante acciones declaradas en
+`acciones.json`. Puede mover y renombrar archivos, ejecutar secuencias y usar un
+proveedor de IA compatible con la API de chat de OpenAI para resumir o proponer
+nombres de PDFs.
 
-El programa procesa archivos de una carpeta cada vez. Antes de ejecutar una
-acción sobre archivos reales, se recomienda probarla con `--simular`.
+Las acciones de archivos no borran ni sobrescriben. Prueba primero con
+`--simular` y utiliza una carpeta de pruebas, no tus archivos personales.
 
 ## Requisitos e instalación
 
-- Python 3.12 o posterior.
-- [uv](https://docs.astral.sh/uv/), para instalar y ejecutar el proyecto.
+Se necesita Python 3.12 o posterior y [uv](https://docs.astral.sh/uv/).
 
-Desde la carpeta del proyecto:
-
-```bash
-uv sync
-```
-
-Puedes ejecutar los comandos con `uv run tareas`:
+Para desarrollar o probar el proyecto:
 
 ```bash
+uv sync --dev
 uv run tareas --help
 ```
 
-## Ayuda y uso
-
-La ayuda general muestra las acciones disponibles y una breve descripción de cada
-una:
+Para instalar la herramienta desde el repositorio público:
 
 ```bash
+uv tool install git+https://github.com/JosepVidal1/cli-tareas
+```
+
+También se puede instalar con `pipx`:
+
+```bash
+pipx install git+https://github.com/JosepVidal1/cli-tareas
+```
+
+El comando `tareas` queda disponible en el `PATH`. La configuración se lee por
+defecto de `./acciones.json`; si trabajas desde otra carpeta, indica la ruta
+explícitamente con `--config`.
+
+## Órdenes
+
+```text
 tareas --help
+tareas version
+tareas listar [CARPETA] [--json]
+tareas acciones
+tareas validar
+tareas ejecutar NOMBRE [CARPETA] [--simular] [--si]
+tareas --config RUTA acciones
 ```
 
-Para consultar las opciones de un comando concreto:
+Ejemplos:
 
 ```bash
-tareas ordenar-descargas --help
+tareas version
+tareas listar ~/pruebas-tareas --json
+tareas --config ./acciones.json validar
+tareas ejecutar ordenar-descargas --simular
+tareas ejecutar limpieza-semanal --simular
 ```
 
-La forma general de ejecutar una acción es:
+`--simular` muestra los cambios de archivos sin aplicarlos. Las acciones de IA
+requieren confirmar que se envíe el texto del PDF al proveedor; esto también se
+aplica al ejecutar una acción IA con `--simular`, porque la simulación no evita
+la llamada al modelo. `--si` da esa confirmación sin preguntar, para
+automatización. En el caso de
+`renombrar-por-contenido`, `--simular` es obligatorio y solo se muestran
+propuestas: nunca renombra por sí misma. Los destinos existentes se rechazan,
+nunca se sobrescriben.
+
+Los códigos de salida son `0` si todo va bien, `1` si falla la ejecución, `2`
+si la acción no existe y `3` si la configuración es inválida.
+
+## Acciones incluidas
+
+Las rutas de ejemplo están bajo `~/pruebas-tareas`. Crea allí las carpetas
+necesarias y algunos archivos de prueba antes de ejecutar acciones sin
+`--simular`.
+
+| Acción | Qué hace |
+| --- | --- |
+| `ordenar-descargas` | Mueve `.pdf` y `.docx` a `Documentos/PDF`. |
+| `recoger-capturas` | Mueve capturas PNG con el patrón configurado. |
+| `renombrar-fotos` | Usa fecha de modificación, secuencia y extensión original. |
+| `ordenar-imagenes` | Mueve imágenes descargadas a `Pictures/Descargadas`. |
+| `ordenar-instaladores` | Mueve instaladores a `Downloads/Instaladores`. |
+| `limpieza-semanal` | Ejecuta en orden las cuatro acciones de organización anteriores. |
+| `resumir-pdf` | Extrae texto de apuntes PDF y genera un resumen Markdown mediante IA. |
+| `renombrar-por-contenido` | Sugiere nombres para PDFs mediante IA; solo muestra propuestas. |
+
+La aplicación no implementa borrado de archivos. Las acciones de IA solo envían
+el texto extraído de los PDFs seleccionados después de pedir confirmación. Se
+envían como máximo los primeros 30.000 caracteres de cada documento.
+
+## Configuración de IA y secretos
+
+La integración usa una API compatible con `POST /chat/completions`. Copia
+`.env.example` a `.env` y configura la clave, la URL base y el modelo indicados
+por tu proveedor:
 
 ```bash
-tareas <nombre-de-acción> [--simular]
+cp .env.example .env
 ```
 
-Por ejemplo:
+En PowerShell:
 
-```bash
-tareas ordenar-descargas --simular
-tareas ordenar-descargas
+```powershell
+Copy-Item .env.example .env
 ```
 
-`--simular` muestra los cambios que se harían sin modificar archivos. Sin esa
-opción, los archivos coincidentes se procesan realmente. Si no hay coincidencias,
-el programa lo indica. Si la carpeta de origen no existe, el destino ya existe o
-se produce otro error de ejecución, se muestra un error y el comando termina con
-código distinto de cero.
+No escribas claves en el código, `acciones.json`, el README, los prompts ni el
+chat. `.env` está excluido por `.gitignore`; no lo añadas a Git. Si la clave
+falta o el proveedor no responde, la orden de IA explica el problema sin
+traceback; `--help`, `acciones`, `validar` y las acciones sin IA siguen
+disponibles. No se realizan llamadas de red en las pruebas.
 
-También se puede crear una acción de forma interactiva:
+## Formato de `acciones.json`
 
-```bash
-tareas añadir-accion
-```
+El fichero es un objeto JSON con `version: 1` y una lista `acciones`. Cada
+acción de archivos necesita `nombre`, `descripcion`, `tipo`, `origen` y
+`filtro`. El filtro acepta `extensiones` o `patron` (expresión regular).
 
-El asistente solicita el nombre, la descripción, el tipo, la carpeta de origen,
-el filtro y el destino o la plantilla que correspondan. La nueva acción se añade
-a `acciones.json`. Los campos obligatorios deben completarse para poder guardarla.
-
-## Acciones configuradas
-
-Las acciones se cargan desde `acciones.json`. En la configuración actual están
-disponibles:
-
-| Acción | Descripción | Tipo y archivos |
-| --- | --- | --- |
-| `ordenar-descargas` | Mueve archivos de Descargas a Documentos/PDF. | Mover archivos `.pdf` y `.docx` desde `~/pruebas-tareas/Downloads` a `~/pruebas-tareas/Documentos/PDF`. |
-| `recoger-capturas` | Lleva capturas de pantalla del Escritorio a la carpeta Capturas. | Mover archivos `.png` cuyo nombre coincide con `^Captura de pantalla.*\.png$`, desde `~/pruebas-tareas/Desktop` a `~/pruebas-tareas/Capturas`. |
-| `renombrar-fotos` | Cambia el nombre de fotos usando la fecha de modificación del archivo. | Renombrar archivos `.jpg`, `.jpeg`, `.png` y `.heic` de `~/pruebas-tareas/Fotos` con el formato `{fecha:%Y-%m-%d}_{n:03}{ext}`. |
-
-La configuración también contiene una entrada llamada `Contar numero de letras`,
-que aparece en la ayuda, pero todavía no implementa el recuento descrito: está
-definida como una acción de tipo `mover`, con origen y destino `La actual`. No es
-una acción funcional hasta que se complete su configuración y se implemente el
-comportamiento esperado.
-
-Las rutas de ejemplo usan `~/pruebas-tareas` para limitar las pruebas a una
-carpeta separada de los archivos personales. Revisa las rutas de `acciones.json`
-antes de ejecutar acciones sin `--simular`.
-
-## Configurar acciones
-
-Cada acción se define como un objeto dentro de la lista `acciones` del archivo
-`acciones.json`. Debe incluir:
-
-- `nombre`, `descripcion`, `tipo` y `origen`.
-- `filtro`, con `extensiones` (lista de extensiones) o `patron` (expresión
-  regular que se compara con el nombre del archivo).
-- `destino` si `tipo` es `mover`.
-- `plantilla` si `tipo` es `renombrar`.
-
-Ejemplo de acción para mover PDF:
+Ejemplo:
 
 ```json
 {
-  "nombre": "ordenar-pdf",
-  "descripcion": "Mueve los PDF a una carpeta",
-  "tipo": "mover",
-  "origen": "~/Downloads",
-  "filtro": {
-    "extensiones": [".pdf"]
-  },
-  "destino": "~/Documents/PDF"
+  "version": 1,
+  "acciones": [
+    {
+      "nombre": "ordenar-pdf",
+      "descripcion": "Mueve PDFs a una carpeta",
+      "tipo": "mover",
+      "origen": "~/pruebas-tareas/entrada",
+      "filtro": {
+        "extensiones": [".pdf"]
+      },
+      "destino": "~/pruebas-tareas/salida"
+    }
+  ]
 }
 ```
 
-Las extensiones no distinguen entre mayúsculas y minúsculas. En una plantilla de
-renombrado se pueden usar:
+`mover` requiere `destino`. `renombrar` requiere `plantilla`, que puede usar
+`{fecha:FORMATO}`, `{n:FORMATO}` y `{ext}`. `secuencia` requiere una lista de
+nombres en `acciones`; las referencias se validan y no pueden formar ciclos.
+Las acciones IA (`resumir-pdf` y `renombrar-por-contenido`) solo aceptan PDFs.
+El programa valida el JSON antes de ejecutar y señala el campo inválido.
 
-- `{fecha:FORMATO}`: fecha de modificación del archivo, con formato de Python
-  `datetime`.
-- `{n:FORMATO}`: número de secuencia de los archivos coincidentes.
-- `{ext}`: extensión original del archivo.
+## Desarrollo y pruebas
 
-Por ejemplo, `{fecha:%Y-%m-%d}_{n:03}{ext}` puede producir
-`2026-10-31_001.jpg`.
+Las pruebas usan exclusivamente `tmp_path` de pytest; no operan sobre tus
+archivos ni hacen peticiones de red:
 
-## Límites actuales
+```bash
+uv run pytest -q
+```
 
-- Los tipos de acción implementados son `mover` y `renombrar`.
-- Los filtros se aplican a archivos de la carpeta de origen, no recorren
-  subcarpetas.
-- El programa no borra archivos. Al mover o renombrar, comprueba los destinos y
-  aborta si ya existe un archivo con ese nombre.
-- No están implementadas todavía las acciones con IA descritas en la
-  especificación del proyecto.
+GitHub Actions ejecuta la misma suite en Ubuntu, Windows y macOS para Python
+3.12 en cada `push` y `pull_request`.
+
+## Estructura
+
+- `src/tareas/cli.py`: interfaz Typer y códigos de salida.
+- `src/tareas/configuracion.py`: carga y validación de `acciones.json`.
+- `src/tareas/motor.py`: ejecución de acciones y secuencias.
+- `src/tareas/acciones.py`: planificación y cambios seguros de archivos.
+- `src/tareas/proveedor_ia.py`: cliente de API compatible con chat.
+- `tests/`: pruebas automáticas sin red ni archivos reales.
+- `docs/adr/`: decisiones de diseño.
+- `CHANGELOG.md`: cambios previstos y condición para la versión 1.0.

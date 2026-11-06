@@ -1,19 +1,13 @@
-# Spec · tareas
+# Especificación · tareas
 
-- Para quién es: para mí, estudiante de DAM con un Mac, y para cualquiera que tenga el ordenador desordenado.
-- Qué problema resuelve: ordenar, renombrar y entender archivos que se acumulan cada día, sin hacerlo a mano.
-- Órdenes: `tareas --help` muestra las acciones configuradas; cada acción se invoca como `tareas <nombre-accion> [--simular]`.
-- Una acción que no aparezca en `acciones.json` muestra un error indicando que no existe.
-- Acciones de sistema:
-  1. ordenar-descargas (mover): PDF y documentos (.pdf, .docx) de ~/Downloads a ~/Documents/PDF.
-  2. recoger-capturas (mover): capturas del Escritorio ("Captura de pantalla…") a ~/Pictures/Capturas.
-  3. renombrar-fotos (renombrar): IMG_4821.jpg → 2026-10-31_001.jpg (.jpg, .jpeg, .png, .heic).
-  4. ordenar-imagenes (mover): imágenes de ~/Downloads a ~/Pictures/Descargadas.
-  5. ordenar-instaladores (mover): .dmg y .pkg de ~/Downloads a ~/Downloads/Instaladores.
-- Acción encadenada: limpieza-semanal ejecuta 1, 2, 4 y 5 con una sola orden.
-- Acciones con IA (semana 3): resumir-pdf (resumen en Markdown de unos apuntes) y renombrar-por-contenido (propone un nombre leyendo el documento, siempre con --simular).
-- Sin red: si no hay internet o falta la clave, las acciones con IA lo explican en una línea y el resto sigue funcionando.
-- Seguridad: primero --simular; confirmación antes de sobrescribir; la clave de la IA solo en .env, que nunca se sube.
-- Dónde pruebo: solo en ~/pruebas-tareas, nunca en mis archivos reales.
-- Qué NO hará: no borra archivos, no sobrescribe sin preguntar y no sube mis archivos a internet (salvo el texto que envíe a la IA cuando yo lo pida).
-- Sistemas: macOS (mi equipo), Linux (aula) y Windows.
+- Para quién es: para un estudiante de DAM y cualquiera que quiera automatizar la organización de archivos.
+- Problema: ordenar, renombrar y comprender documentos repetitivos sin modificar manualmente cada archivo.
+- Órdenes: `version`, `listar`, `acciones`, `validar` y `ejecutar`; `--config` permite elegir otro JSON.
+- Configuración: `acciones.json` define acciones `mover`, `renombrar`, `secuencia` y acciones de IA para PDFs.
+- Acciones propias: ordenar descargas, recoger capturas, renombrar fotos, ordenar imágenes e instaladores; `limpieza-semanal` las combina.
+- IA: `resumir-pdf` genera Markdown; `renombrar-por-contenido` propone nombres sin cambiar archivos.
+- Seguridad: probar con `--simular`; no borrar ni sobrescribir; pedir confirmación antes de enviar texto a IA.
+- Modo sin red: las funciones sin IA continúan disponibles; la orden IA informa si falta clave o conexión.
+- Secretos: variables de IA en `.env`, ignorado por Git; `.env.example` no contiene claves reales.
+- Pruebas: pytest usa carpetas temporales y no llama servicios de red ni modifica archivos personales.
+- Sistemas: Linux, Windows y macOS; rutas gestionadas con `pathlib`, UTF-8 explícito y CI multiplataforma.

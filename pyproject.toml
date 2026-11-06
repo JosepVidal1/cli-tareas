@@ -1,19 +1,26 @@
 [project]
 name = "tareas"
 version = "0.1.0"
-description = "Add your description here"
+description = "CLI para automatizar tareas de archivos mediante acciones configurables"
 readme = "README.md"
 authors = [
     { name = "JosepVidal1", email = "217772442+JosepVidal1@users.noreply.github.com" }
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "pypdf>=5.0.0",
     "typer>=0.27.3",
+    "python-dotenv>=1.0.1",
 ]
 
 [project.scripts]
-tareas = "tareas:main"
+tareas = "tareas.cli:app"
 
 [build-system]
 requires = ["uv_build>=0.13.6,<0.14.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0",
+]

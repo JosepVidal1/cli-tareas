@@ -22,7 +22,7 @@ uv run tareas --help
 Para instalar la herramienta desde el repositorio público:
 
 ```bash
-uv tool install git+https://github.com/JosepVidal1/cli-tareas
+uv tool install git+https://github.com/JosepVidal1/cli-tareas@v1.0.0
 ```
 
 También se puede instalar con `pipx`:
